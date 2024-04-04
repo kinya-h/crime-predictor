@@ -1,0 +1,24 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "*"
+django-cors-headers = "*"
+djangorestframework = "*"
+whitenoise = "*"
+djoser = "*"
+djangorestframework-simplejwt = "*"
+drf-nested-routers = "*"
+scikit-learn = "==1.4.0"
+pandas = "*"
+matplotlib = "*"
+seaborn = "*"
+numpy = "*"
+geopy = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"

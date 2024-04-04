@@ -1,0 +1,101 @@
+from django.shortcuts import render
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from sklearn.pipeline import Pipeline
+import joblib
+import pandas as pd
+from .models import CrimePrediction
+from .serializers import CrimePredictionSerializer
+import os
+from geopy.distance import geodesic
+
+# Create your views here.
+class CrimePredictionViewSet(viewsets.ModelViewSet):
+    queryset = CrimePrediction.objects.all()
+    serializer_class = CrimePredictionSerializer
+    
+    @action(detail=False, methods=['post'])
+    def predict_crime(self, request):
+        input_serializer = CrimePredictionSerializer(data=request.data)
+        input_serializer.is_valid(raise_exception=True)
+        input_data = input_serializer.validated_data
+
+        # Load the trained Random Forest model from the pickle file
+        script_dir = os.path.dirname(__file__)
+
+        # Load the model using the full path
+        model_path = os.path.join(script_dir, 'random_forest_model.pkl')
+        model = joblib.load(model_path)
+        # Predict using the loaded model
+        input_df = pd.DataFrame([input_data])
+        input_df[['year' , 'month' , 'day']] = input_df[['year' , 'month' , 'day']].astype('int64')
+        input_df[['latitude' , 'longitude' ]] = input_df[['latitude' , 'longitude' ]].astype("float64")
+        predictions = None
+        
+        try:
+          predictions = model.predict(input_df)
+            
+        except Exception as e:
+            print("EXCEPTIO HERE")
+            
+            
+    
+        
+
+        # result_df = pd.DataFrame({
+        #             'type': predictions,
+        #             })
+        input_df['type'] = predictions
+        result_df = input_df
+        bank_location = (0.0459849, 37.652118)
+        
+        # Simulate proximity to bank
+        # crime_location = (result_df.latitude, result_df.longitude)
+        
+        # proximity_to_bank = calculate_distance(crime_location, bank_location)
+        result_df['proximity_to_bank'] = 1.9
+        print(result_df)
+        # pipeline = Pipeline([("DecodeCrimeType" , DecodeCrimeType(column='type')) ])
+
+
+        # result_df = pipeline.fit_transform(result_df)
+        # Prepare the response data
+        results ={
+                   'predicted_type': result_df['type'],
+        }
+
+        return Response(results)
+    
+    
+# def calculate_distance(point1, point2):
+#     return geodesic(point1, point2).kilometers    
+def calculate_distance(point1, point2):
+    # Extract latitude and longitude values from point1 and point2
+    lat1, lon1 = point1
+    lat2, lon2 = point2
+    return geodesic((lat1, lon1), (lat2, lon2)).kilometers   
+    
+from sklearn.preprocessing import LabelEncoder
+from sklearn.base import BaseEstimator, TransformerMixin
+
+class DecodeCrimeType(BaseEstimator, TransformerMixin):
+    """
+    This class decodes numerical values in the specified column into their original categorical values.
+    """
+    def __init__(self, column):
+        self.column = column
+        self.encoder = LabelEncoder()
+
+    def fit(self, X, y=None):
+        # Fit the LabelEncoder on the specified column
+        self.encoder.fit(X[self.column])
+        return self
+
+
+
+
+    def transform(self, X):
+        # Transform the specified column using LabelEncoder
+        X[self.column] = self.encoder.inverse_transform(X[self.column])
+        return X    

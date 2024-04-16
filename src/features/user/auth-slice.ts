@@ -1,8 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { User } from "../../types/User";
 import {
-  fectchUsers,
-  getLoggedInUser,
+  getUser,
   loginUser,
   signUpUser,
 } from "../../actions/auth";
@@ -53,16 +52,16 @@ export const authSlice = createSlice({
       })
 
       //get Logged in User
-      .addCase(getLoggedInUser.pending, (state) => {
+      .addCase(getUser.pending, (state) => {
         state.loading = true;
       })
 
-      .addCase(getLoggedInUser.fulfilled, (state, action) => {
+      .addCase(getUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
       })
 
-      .addCase(getLoggedInUser.rejected, (state, action) => {
+      .addCase(getUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
@@ -76,28 +75,28 @@ interface usersState {
   error: unknown;
 }
 
-export const usersSlice = createSlice({
-  name: "usersList",
-  initialState: {
-    loading: false,
-    success: false,
-    usersList: [],
-    error: "",
-  } as usersState,
-  reducers: {},
-  extraReducers: (builder) => {
-    builder
-      .addCase(fectchUsers.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(fectchUsers.fulfilled, (state, action) => {
-        state.loading = false;
-        state.success = true;
-        state.usersList = action.payload;
-      })
-      .addCase(fectchUsers.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      });
-  },
-});
+// export const usersSlice = createSlice({
+//   name: "usersList",
+//   initialState: {
+//     loading: false,
+//     success: false,
+//     usersList: [],
+//     error: "",
+//   } as usersState,
+//   reducers: {},
+//   extraReducers: (builder) => {
+//     builder
+//       .addCase(fectchUsers.pending, (state) => {
+//         state.loading = true;
+//       })
+//       .addCase(fectchUsers.fulfilled, (state, action) => {
+//         state.loading = false;
+//         state.success = true;
+//         state.usersList = action.payload;
+//       })
+//       .addCase(fectchUsers.rejected, (state, action) => {
+//         state.loading = false;
+//         state.error = action.payload;
+//       });
+//   },
+// });

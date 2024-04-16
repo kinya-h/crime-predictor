@@ -26,6 +26,7 @@ class CrimePredictionViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['post'])
     def predict_crime(self, request):
+        print("DATA =>>" , request.data)
         input_serializer = CrimePredictionSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
         input_data = input_serializer.validated_data
@@ -85,7 +86,7 @@ class CrimePredictionViewSet(viewsets.ModelViewSet):
 
 
         # Render the email content using the template
-        email_subject = 'Model Results Invitation'
+        email_subject = 'Model Results'
         email_text_content = 'Model Results'
         email_html_content = render_to_string('emails/results.html', {'prediction': prediction})
 

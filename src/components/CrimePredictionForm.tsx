@@ -3,6 +3,10 @@ import axios from "axios";
 import { CrimeType, fetchPlaces, mapTypeToOriginalType } from "../utils";
 import { CrimeDatePicker } from "./DatePicker";
 import { Place } from "../types/Place";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState, useAppDispatch } from "../store";
+import { getUser } from "../actions/auth";
+import { User } from "../types/User";
 interface CrimePredictionFormProps {
   onPredictions: (preds: any) => void;
 }
@@ -19,10 +23,13 @@ const CrimePredictionForm = ({ onPredictions }: CrimePredictionFormProps) => {
   const [selectedPlace, setSelectedPlace] = useState<Place>({} as Place);
   const [places, setPlaces] = useState<Place[]>([]);
   const [email, etEmail] = useState("");
+  const {user} = useSelector((state:RootState)=>state.authUser)
   //   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   //     const { name, value } = e.target;
   //     setFormData({ ...formData, [name]: value });
   //   };
+
+  const dispatch = useAppDispatch()
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((position) => {
@@ -30,6 +37,7 @@ const CrimePredictionForm = ({ onPredictions }: CrimePredictionFormProps) => {
       let long = position.coords.longitude;
       // setLatitude(lat.toString());
       // setLongitude(long.toString());
+      dispatch(getUser())
 
       const fetchData = async () => {
         const data = await fetchPlaces();
@@ -74,16 +82,16 @@ const CrimePredictionForm = ({ onPredictions }: CrimePredictionFormProps) => {
       setCrimeType(predictedCrime);
       onPredictions(crimeType);
 
-      // if (response.status === 200) {
-      //   axios.post(`${API_URL}/api/predictions/predict_crime/send_mail/`, {
-      //     prediction: {
-      //       localtion: selectedPlace.name,
-      //       results: predictedCrime,
-      //       date: Date.now().toString(),
-      //     },
-      //     receiver: email,
-      // });
-      // }
+      if (response.status === 200) {
+        axios.post(`${API_URL}/api/predictions/predict_crime/send_mail/`, {
+          prediction: {
+            location: selectedPlace.name,
+            results: crimeType,
+            date: Date.now().toString(),
+          },
+          receiver: (user as User).id,
+        });
+      };
     } catch (error) {
       console.error("Error:", error);
     }
@@ -113,7 +121,7 @@ const CrimePredictionForm = ({ onPredictions }: CrimePredictionFormProps) => {
         results: crimeType,
         date: Date.now().toString(),
       },
-      receiver: email,
+      // receiver: (),
     });
   };
 
@@ -143,7 +151,7 @@ const CrimePredictionForm = ({ onPredictions }: CrimePredictionFormProps) => {
       >
         Predict
       </button>
-      {crimeType && (
+      {/* {crimeType && (
         <form action="" onSubmit={(e) => sendResults(e)}>
           <label className="input input-bordered flex items-center gap-2">
             <svg
@@ -161,7 +169,7 @@ const CrimePredictionForm = ({ onPredictions }: CrimePredictionFormProps) => {
             Submit
           </button>
         </form>
-      )}
+      )} */}
     </div>
   );
 };

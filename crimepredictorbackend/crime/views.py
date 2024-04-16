@@ -4,11 +4,20 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from sklearn.pipeline import Pipeline
 import joblib
+from django.core.mail import send_mail
+from django.template.loader import get_template
+from django.core.mail import EmailMultiAlternatives
 import pandas as pd
 from .models import CrimePrediction
 from .serializers import CrimePredictionSerializer
 import os
 from geopy.distance import geodesic
+
+from django.conf import settings
+from django.template.loader import render_to_string
+from dotenv import load_dotenv
+from django.contrib.auth.models import User
+from rest_framework import status
 
 # Create your views here.
 class CrimePredictionViewSet(viewsets.ModelViewSet):
@@ -67,6 +76,35 @@ class CrimePredictionViewSet(viewsets.ModelViewSet):
 
         return Response(results)
     
+
+    @action(detail=False, methods=['post'])
+    def send_mail(self, request , pk=None):
+        mail_host_user = getattr(settings, "EMAIL_HOST_USER", None)
+        prediction = request.data.get('prediction')
+        print("Predictions = " , prediction)
+
+
+        # Render the email content using the template
+        email_subject = 'Model Results Invitation'
+        email_text_content = 'Model Results'
+        email_html_content = render_to_string('emails/results.html', {'prediction': prediction})
+
+        receiver_id = request.data.get('receiver')
+        receiver = User.objects.get(pk=receiver_id)
+
+        recipient_email = receiver.email
+        # Send the email
+        if recipient_email:
+            msg = EmailMultiAlternatives(email_subject,email_text_content, mail_host_user, [recipient_email])
+            msg.attach_alternative(email_html_content, "text/html")  # Specify that the content is HTML
+            msg.send()
+            # invitation = Invitation(sender=request.user, receiver=receiver, event=event)
+            # invitation.save()
+            
+
+            return Response({'message' : "Results sent succesfully"})
+        else:
+            return Response({'error': 'Recipient email not provided'}, status=status.HTTP_400_BAD_REQUEST)
     
 # def calculate_distance(point1, point2):
 #     return geodesic(point1, point2).kilometers    

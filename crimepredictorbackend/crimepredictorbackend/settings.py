@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+from oauthlib.oauth2 import WebApplicationClient
+import os
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,6 +45,27 @@ INTERNAL_IPS = [
     # ...
 ] 
 
+load_dotenv()
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_DEBUG = True
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = os.environ.get('MAIL_USERNAME')
+EMAIL_HOST_PASSWORD = os.environ.get('MAIL_PASSWORD')
+
+
+SCOPES = ['https://www.googleapis.com/auth/gmail.send']
+
+GOOGLE_CLIENT_ID = os.environ.get('CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
+GOOGLE_DISCOVERY_URL = (
+    "https://accounts.google.com/.well-known/openid-configuration"
+)
+client = WebApplicationClient(GOOGLE_CLIENT_ID)
+client.prepare_request_body(include_client_id=True)
 
 # Application definition
 

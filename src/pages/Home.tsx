@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import CrimePredictionForm from "../components/CrimePredictionForm";
+import CrimeLineChart from "../components/ScatterPlot";
 
 const Home = () => {
   const [prediction, setPredictions] = useState("");
@@ -33,6 +34,7 @@ const Home = () => {
                 </button>
               </div>
             </form>
+
             <p className="text-xs text-gray-500 text-center dark:text-gray-400">
               Sign up to receive updates on our official launch.
             </p>
@@ -48,6 +50,8 @@ const Home = () => {
           </h1>
         )}
       </section>
+
+      <CrimeLineChart />
       <section className="w-full py-12 md:py-24 lg:py-32">
         <div className="container grid items-center gap-4 px-4 md:px-6">
           <div className="space-y-3 text-center">

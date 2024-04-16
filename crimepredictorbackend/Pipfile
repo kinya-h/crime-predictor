@@ -17,6 +17,7 @@ matplotlib = "*"
 seaborn = "*"
 numpy = "*"
 geopy = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

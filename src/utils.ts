@@ -1,3 +1,6 @@
+import { Place } from "./types/Place";
+import axios from "axios";
+
 export type CrimeType =
   | "Theft"
   | "Robbery"
@@ -57,3 +60,17 @@ export function mapTypeToOriginalType(crimeType: number): CrimeType {
 // Example usage:
 const typeNumber: number = 4; // Example type number
 // console.log(originalType); // Output: "Kidnapping"
+
+// Define the URL of the JSON file
+const url = "/data/places.json";
+
+// Function to fetch data from JSON file
+export const fetchPlaces = async () => {
+  try {
+    const response = await axios.get<Place[]>("/data/places.json");
+    return response.data as Place[];
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return [];
+  }
+};

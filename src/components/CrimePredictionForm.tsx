@@ -9,9 +9,10 @@ import { getUser } from "../actions/auth";
 import { User } from "../types/User";
 interface CrimePredictionFormProps {
   onPredictions: (preds: any) => void;
+  onClearResults: () =>void;
 }
 
-const CrimePredictionForm = ({ onPredictions }: CrimePredictionFormProps) => {
+const CrimePredictionForm = ({ onPredictions, onClearResults }: CrimePredictionFormProps) => {
   const API_URL = "http://localhost:8000";
 
   const [year, setYear] = useState(0);
@@ -49,6 +50,8 @@ const CrimePredictionForm = ({ onPredictions }: CrimePredictionFormProps) => {
       console.log({ lat, long });
     });
   }, []);
+
+  console.log("AUTH USER =>" , user)
   const setTimeScale = (date: Date) => {
     const selectedDate = new Date(date);
     // console.log("date=>", selectedDate.getDay);
@@ -61,7 +64,7 @@ const CrimePredictionForm = ({ onPredictions }: CrimePredictionFormProps) => {
 
   const handleSubmit = async () => {
     console.log("POSTING");
-
+    onClearResults()
     try {
       // Send data to the backend
       const response = await axios.post(
@@ -83,11 +86,11 @@ const CrimePredictionForm = ({ onPredictions }: CrimePredictionFormProps) => {
       onPredictions(crimeType);
 
       if (response.status === 200) {
-        axios.post(`${API_URL}/api/predictions/predict_crime/send_mail/`, {
+        axios.post(`${API_URL}/api/predictions/send_mail/`, {
           prediction: {
             location: selectedPlace.name,
             results: crimeType,
-            date: Date.now().toString(),
+            date: new Date().toString(),
           },
           receiver: (user as User).id,
         });

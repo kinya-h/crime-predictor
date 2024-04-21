@@ -7,7 +7,6 @@ const Landing = () => {
   return (
     <div>
       <Hero />
-
       <CTA />
     </div>
   );

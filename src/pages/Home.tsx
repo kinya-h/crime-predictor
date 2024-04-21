@@ -1,12 +1,53 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CrimePredictionForm from "../components/CrimePredictionForm";
-import CrimeLineChart from "../components/ScatterPlot";
+import CrimeLineChart from "../components/Plot";
+import Loader from "../components/Loader";
+import MapRenderer from "../components/MapRenderer";
 
 const Home = () => {
   const [prediction, setPredictions] = useState("");
+  const [clearResults , setClearResults] = useState(false);
+const [loading , setLoading] = useState(false);
+const [latitude , setLatitude] = useState(0)
+const [longitude , setLongitude] = useState(0)
+
+useEffect(() => {
+  navigator.geolocation.getCurrentPosition((position) => {
+    let lat = position.coords.latitude;
+    let long = position.coords.longitude;
+
+    setLatitude(lat)
+    // setLatitude(lat.toString());
+    setLongitude(long);
+
+    console.log("LOCATION as string " , {lat, long})
+
+    // const fetchData = async () => {
+    //   const data = await fetchPlaces();
+    //   console.log(data);
+    //   setPlaces(data);
+    // };
+
+    // fetchData();
+    // console.log({ lat, long });
+  });
+}, []);
+
+console.log("LOCATION HERE also IS " , {latitude, longitude})
+
   const displayPredictions = (preds: any) => {
+    
+    setClearResults(false);
+    setLoading(false);
     setPredictions(preds);
   };
+
+  const handleClearResults = ()=>{
+    setLoading(true);
+    setClearResults(true);
+    if(!prediction)setLoading(false);
+
+  }
   return (
     <div>
       <section className="w-full py-6 md:py-12 lg:py-16">
@@ -40,9 +81,9 @@ const Home = () => {
             </p>
           </div>
         </div>
-        <CrimePredictionForm onPredictions={displayPredictions} />
+        <CrimePredictionForm onPredictions={displayPredictions} onClearResults={handleClearResults}/>
 
-        {prediction && (
+        { clearResults === false && (
           <h1 className="text-3xl text-blue-600 font-bold">
             {" "}
             Predicted Results for this location input and time series data is :{" "}
@@ -51,7 +92,23 @@ const Home = () => {
         )}
       </section>
 
+<div className="w-full items-center">
+  {loading && (<Loader/>)}
+
+</div>
+
+<div className="absolute inset-0 bg-opacity-50 backdrop-filter backdrop-blur-lg">
+
+  <MapRenderer latitude={latitude} longitude={longitude} />
+
+</div>
+
+
+{ clearResults === false &&
       <CrimeLineChart />
+
+}
+
       <section className="w-full py-12 md:py-24 lg:py-32">
         <div className="container grid items-center gap-4 px-4 md:px-6">
           <div className="space-y-3 text-center">

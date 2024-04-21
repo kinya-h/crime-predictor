@@ -80,6 +80,7 @@ class CrimePredictionViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def send_mail(self, request , pk=None):
+        print("PAYLOAD =>>",  self.request.data)
         mail_host_user = getattr(settings, "EMAIL_HOST_USER", None)
         prediction = request.data.get('prediction')
         print("Predictions = " , prediction)
